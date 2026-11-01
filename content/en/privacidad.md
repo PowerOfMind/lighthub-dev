@@ -4,7 +4,7 @@ desc: Privacy at LightHub Dev explains what visitors store locally, which extern
 ---
 ## Data and storage
 
-LightHub Dev does not ask for personal data. Your browser stores your theme preference and reading progress in localStorage. You can clear this data in your browser settings.
+LightHub Dev does not ask for personal data. Your browser stores your theme preference in localStorage. You can clear this data in your browser settings.
 
 ## External services
 

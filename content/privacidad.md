@@ -4,7 +4,7 @@ desc: Privacidad en LightHub Dev para quienes visitan el sitio, con detalles sob
 ---
 ## Datos y almacenamiento
 
-LightHub Dev no solicita datos personales. El navegador guarda en localStorage la preferencia de tema y el progreso de lectura. Puedes borrar estos datos desde la configuración del navegador.
+LightHub Dev no solicita datos personales. El navegador guarda en localStorage la preferencia de tema. Puedes borrar estos datos desde la configuración del navegador.
 
 ## Servicios externos
 

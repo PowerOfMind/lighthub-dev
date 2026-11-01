@@ -35,20 +35,36 @@
     }, function () { t.textContent = '…'; });
   });
 
-  // resaltado mínimo
+  // Resaltado léxico sin alterar el texto utilizado por Copiar.
   var KW = /\b(const|let|var|function|return|if|else|for|while|import|from|export|default|class|extends|new|this|async|await|type|interface|static|true|false|null|undefined|def|in|of|try|catch|throw|as|implements|public|private|readonly|accessor)\b/;
-  var RX = new RegExp('(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/|^\\s*#[^\\n]*)|("(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'|`(?:\\\\.|[^`\\\\])*`)|(' + KW.source + ')|(\\b\\d+(?:\\.\\d+)?\\b)', 'gm');
-  $$('.code code, .qc code').forEach(function (c) {
-    var lang = (c.className.match(/language-(\w+)/) || [])[1] || 'js';
-    if (lang === 'text') return;
-    var s = c.textContent, o = '', last = 0, m; RX.lastIndex = 0;
+  var RX = /<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[\w-]+|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|<\/?[A-Za-z][\w.:-]*|@[\w-]+|=>|--?[\w-]+|\b\d+(?:\.\d+)?\b|[A-Za-z_$][\w$-]*/gm;
+  function highlight(s, lang) {
+    if (/^(text|plaintext|plain)$/.test(lang)) return esc(s);
+    var o = '', last = 0, m; RX.lastIndex = 0;
     while ((m = RX.exec(s))) {
       o += esc(s.slice(last, m.index));
-      var cls = m[1] ? 't-c' : m[2] ? 't-s' : m[3] ? 't-k' : 't-n';
-      if ((lang === 'html' || lang === 'css') && (cls === 't-k' || cls === 't-n')) { o += esc(m[0]); last = RX.lastIndex; continue; }
-      o += '<span class="' + cls + '">' + esc(m[0]) + '</span>'; last = RX.lastIndex;
+      var v = m[0], before = s.slice(0, m.index), after = s.slice(RX.lastIndex), cls = '';
+      if (/^(<!--|\/\*|\/\/)/.test(v)) cls = 'c';
+      else if (/^#/.test(v)) cls = lang === 'css' ? 'tag' : 'c';
+      else if (/^["'`]/.test(v)) cls = lang === 'json' && /^\s*:/.test(after) ? 'p' : 's';
+      else if (/^<\/?/.test(v)) cls = 'tag';
+      else if (/^@/.test(v) || (/^(bash|sh|shell)$/.test(lang) && /^-/.test(v))) cls = 'a';
+      else if (v === '=>') cls = 'k';
+      else if (/^\d/.test(v)) cls = 'n';
+      else if (lang === 'css') cls = /^\s*:/.test(after) ? 'p' : /^\s*[{,.#>]/.test(after) ? 'tag' : 's';
+      else if (/^(bash|sh|shell)$/.test(lang)) cls = /(?:^|[\n;|&])\s*$/.test(before) ? 'f' : '';
+      else if (KW.test(v)) cls = 'k';
+      else if (/\.\s*$/.test(before)) cls = 'p';
+      else if (/^\s*=/.test(after) && /<[^>]*$/.test(before)) cls = 'a';
+      else if (/^[A-Z]/.test(v)) cls = 'type';
+      else if (/^\s*\(/.test(after)) cls = 'f';
+      o += cls ? '<span class="t-' + cls + '">' + esc(v) + '</span>' : esc(v); last = RX.lastIndex;
     }
-    c.innerHTML = o + esc(s.slice(last));
+    return o + esc(s.slice(last));
+  }
+  $$('.code code, .qc code').forEach(function (c) {
+    var lang = (c.className.match(/language-([\w-]+)/) || [])[1] || 'js';
+    c.innerHTML = highlight(c.textContent, lang.toLowerCase());
   });
 
   // pestañas
@@ -125,6 +141,7 @@
   var VARS = ['--bg', '--surface', '--surface-2', '--text', '--muted', '--line', '--primary', '--primary-ink', '--primary-soft', '--ok', '--bad', '--warn'];
   var seq = 0;
   function run(sec) {
+    $$('textarea', sec).forEach(updateEditor);
     var id = sec.dataset.id = sec.dataset.id || String(++seq), cs = getComputedStyle(d.documentElement);
     var vars = VARS.map(function (v) { return v + ':' + cs.getPropertyValue(v); }).join(';');
     var editor = $('.tj', sec), js = editor.value.replace(/<\/script/gi, '<\\/script');
@@ -152,13 +169,27 @@
     var con = $('.con', sec); con.hidden = false;
     var line = d.createElement('div'); if (e.data.k === 'error') line.className = 'e'; line.textContent = e.data.t; con.appendChild(line);
   });
+  function updateEditor(ta) {
+    var pre = $('.hl', ta.parentNode);
+    if (!pre) return;
+    var lang = ta.classList.contains('th') ? 'html' : ta.dataset.jsx ? 'jsx' : 'js';
+    $('code', pre).innerHTML = highlight(ta.value, lang) + '\n';
+    pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft;
+  }
   $$('.try').forEach(function (sec) {
     var h = $('.th', sec).value, j = $('.tj', sec).value;
     $('.run', sec).onclick = function () { run(sec); };
     $('.reset', sec).onclick = function () { $('.th', sec).value = h; $('.tj', sec).value = j; run(sec); };
     $$('textarea', sec).forEach(function (ta) {
+      var pre = d.createElement('pre');
+      pre.className = 'hl'; pre.setAttribute('aria-hidden', 'true');
+      pre.appendChild(d.createElement('code')); ta.parentNode.insertBefore(pre, ta);
+      ta.parentNode.classList.add('has-highlight');
+      ta.addEventListener('input', function () { updateEditor(ta); });
+      ta.addEventListener('scroll', function () { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; });
+      updateEditor(ta);
       ta.addEventListener('keydown', function (e) {
-        if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); var s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); }
+        if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); var s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); updateEditor(ta); }
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(sec); }
       });
     });
@@ -197,19 +228,6 @@
     } else if (e.key === 'Enter' && a[Math.max(sel, 0)]) { location.href = a[Math.max(sel, 0)].href; }
   });
   d.addEventListener('click', function (e) { if (!e.target.closest('#q,#res')) closeRes(); });
-  // lo leído: se guarda en el navegador y alimenta marcas y progreso
-  var seen = {};
-  try { seen = JSON.parse(store('lighthub-seen') || '{}'); } catch (e) {}
-  if (b.dataset.k) { seen[b.dataset.k] = 1; store('lighthub-seen', JSON.stringify(seen)); }
-  $$('.trow').forEach(function (a) { if (seen[a.dataset.k]) a.classList.add('seen'); });
-  $$('.card[data-sec]').forEach(function (c) {
-    var rows = $$('#side .grp[data-sec="' + c.dataset.sec + '"] .trow'), n = 0, next = null;
-    rows.forEach(function (a) { if (seen[a.dataset.k]) n++; else if (!next) next = a; });
-    $('.bar i', c).style.width = (rows.length ? n / rows.length * 100 : 0) + '%';
-    var rd = $('.rd', c); rd.textContent = rd.dataset.tpl.replace('{a}', n).replace('{b}', rows.length);
-    var go = $('.go', c);
-    if (n && next) { go.href = next.href; go.textContent = go.dataset.cont; }
-  });
   var cur = $('#side .trow.cur'), side = $('#side'); if (cur) side.scrollTop = Math.max(0, cur.offsetTop - side.clientHeight / 3);
   fromHash();
 })();

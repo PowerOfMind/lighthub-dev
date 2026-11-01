@@ -203,7 +203,7 @@ def sidebar(pages, base, cur, lang):
         for n, p in enumerate(ps, 1):
             c = ' aria-current="page"' if cur and p is cur else ""
             k = " cur" if c else ""
-            s.append(f'<a class="trow{k}" data-k="{lang}:{p["rel"]}" href="{base}{p["url"]}"{c}><span class="tn">{n:02d}</span><span class="tt">{esc(p["title"])}</span></a>')
+            s.append(f'<a class="trow{k}" href="{base}{p["url"]}"{c}><span class="tn">{n:02d}</span><span class="tt">{esc(p["title"])}</span></a>')
         s.append("</details>")
     s.append("</nav>")
     return "".join(s)
@@ -249,7 +249,6 @@ def shell(lang, pages, base, cur, title, desc, main, rel, alts, ld="", mdurl="",
         f'{" aria-current=true" if l == lang else ""}>{l.upper()}</a>' for l in LANGS)
     home = f"{base}{purl(lang, 'index.html')}"
     logo = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 7h-6zM9 9h6l1 11H8zM3 22h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>'
-    cur_k = f' data-k="{lang}:{cur["rel"]}"' if cur else ""
     return f"""<!doctype html>
 <html lang="{lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(full)}</title><meta name="description" content="{d}">
@@ -259,7 +258,7 @@ def shell(lang, pages, base, cur, title, desc, main, rel, alts, ld="", mdurl="",
 <meta name="theme-color" content="#0d1117"><link rel="icon" href="{base}assets/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{base}assets/style.css">{ld}{ANALYTICS}
 <script>document.documentElement.className='js';try{{var t=localStorage.getItem('lighthub-theme');if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
-</head><body{' class="has-tabs"' if tabs else ''} data-base="{base}" data-search="{base}{purl(lang, 'search.json')}" data-copy="{esc(t['copy'])}" data-copied="{esc(t['copied'])}"{cur_k}>
+</head><body{' class="has-tabs"' if tabs else ''} data-base="{base}" data-search="{base}{purl(lang, 'search.json')}" data-copy="{esc(t['copy'])}" data-copied="{esc(t['copied'])}">
 <a class="skip" href="#main">{t['skip']}</a>
 <aside id="side"><div class="side-h"><a href="{home}"><small>{esc(t['lema'])}</small><strong>{logo}{SITE}</strong></a></div>
 <input id="q" class="sinput" type="search" placeholder="{t['search']}" aria-label="{t['searchl']}" autocomplete="off"><ul id="res" hidden></ul>
@@ -277,13 +276,13 @@ T["es"].update(
     ok="¡Correcto!", ko="Incorrecto.", score="Aciertos", run="Ejecutar", reset="Restaurar", reto="Reto", clave="Idea clave",
     result="Resultado", retry="Reintentar", cons="Consola", sandbox="Se ejecuta en tu navegador, aislado.", jsl="JavaScript", jsx="JSX", tsx="TSX",
     secl="Secciones", qn="Pregunta {n} de {m}", kick="Guía {n} de {m} · {s}", prev="Anterior", next="Siguiente",
-    st_g="guías", st_s="secciones", st_l="idiomas", start="Empezar", cont="Continuar", readn="{a} de {b} leídas")
+    st_g="guías", st_s="secciones", st_l="idiomas", start="Empezar")
 T["en"].update(
     tabs=dict(leccion="Lesson", esquema="Outline", test="Quiz", prueba="Try it"), tabl="Topic sections",
     ok="Correct!", ko="Not quite.", score="Score", run="Run", reset="Reset", reto="Challenge", clave="Key idea",
     result="Result", retry="Try again", cons="Console", sandbox="Runs in your browser, sandboxed.", jsl="JavaScript", jsx="JSX", tsx="TSX",
     secl="Sections", qn="Question {n} of {m}", kick="Guide {n} of {m} · {s}", prev="Previous", next="Next",
-    st_g="guides", st_s="sections", st_l="languages", start="Start", cont="Continue", readn="{a} of {b} read")
+    st_g="guides", st_s="sections", st_l="languages", start="Start")
 
 def split_sections(body):
     parts = re.split(r"^=== (\w+)\s*$", body, flags=re.M)
@@ -310,8 +309,9 @@ def render_test(txt, t, base):
     while i < len(L):
         l = L[i]
         if l.startswith("? "):
-            q = dict(q=l[2:], code="", o=[], a=0, f=""); qs.append(q)
+            q = dict(q=l[2:], code="", lang="", o=[], a=0, f=""); qs.append(q)
         elif l.startswith("```") and q is not None and not q["o"]:
+            q["lang"] = l[3:].strip()
             i += 1; buf = []
             while i < len(L) and not L[i].startswith("```"):
                 buf.append(L[i]); i += 1
@@ -324,7 +324,7 @@ def render_test(txt, t, base):
         i += 1
     items = []
     for n, q in enumerate(qs, 1):
-        code = f'<pre class="qc"><code>{esc(q["code"])}</code></pre>' if q["code"] else ""
+        code = f'<pre class="qc"><code class="language-{esc(q["lang"])}">{esc(q["code"])}</code></pre>' if q["code"] else ""
         opts = "".join(f'<button type="button" class="o opt"{" data-c=1" if k == q["a"] else ""}>{inline(o, base)}</button>' for k, o in enumerate(q["o"]))
         items.append(f'<li class="q card"><p class="qcount">{t["qn"].format(n=n, m=len(qs))}</p><p class="qtext">{inline(q["q"], base)}</p>{code}<div class="opts" role="group">{opts}</div>'
                      f'<p class="fb" hidden>{inline(q["f"], base)}</p></li>')
@@ -426,8 +426,7 @@ def portada(lang, pages, vers, alts):
         ps = [p for p in pages if p["sec"] == sec]
         if not ps: continue
         cards.append(f"<section class='card' id='{sec}' data-sec='{sec}'><h2>{esc(st)}</h2><p>{esc(d)}</p>"
-                     f"<div class='bar'><i></i></div><div class='sub'><span class='rd' data-tpl='{esc(t['readn'])}'>{t['readn'].format(a=0, b=len(ps))}</span></div>"
-                     f"<a class='btn primary small go' data-start='{t['start']}' data-cont='{t['cont']}' href='{base}{ps[0]['url']}'>{t['start']}</a></section>")
+                     f"<a class='btn primary small' href='{base}{ps[0]['url']}'>{t['start']}</a></section>")
     n_g = sum(1 for p in pages)
     main = (f"<article class='lec'><header class='lec-hero'><div class='lec-kicker'>{SITE}</div><h1 class='lec-title'>{t['lema']}</h1>"
             f"<p class='lec-intro'>{t['hero'].format(d=esc(vers.get('checked', '—')))}</p></header>"
