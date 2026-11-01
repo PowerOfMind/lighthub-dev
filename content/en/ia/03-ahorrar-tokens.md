@@ -30,6 +30,9 @@ Tokens are spent on what the model **reads** (context) more than on what it writ
 > [!TIP] Measure
 > Check the agent's context usage from time to time. If a task passes 50 % of the context, summarise and start again with that summary.
 
+> [!TIP] More detail
+> Learn [what tokens and the context window are](@/tokens/que-son-los-tokens-y-la-ventana-de-contexto) and [how to save tokens in Claude Code](@/tokens/ahorrar-tokens-en-claude-code).
+
 === esquema
 # What costs
 - Context read — every message resends the history.

@@ -53,7 +53,7 @@ Generated code **compiles and looks right**. That is exactly the risk: the AI op
 - Only with HTTPS
 ! Anyone can call the endpoint directly.
 ? Which list do you walk through if your app calls models?
-- OWASP Top 10 for LLMs
+* OWASP Top 10 for LLMs
 - ISO 9001
 - Lighthouse
 ! Besides the web Top 10, it covers prompt injection and excessive consumption.

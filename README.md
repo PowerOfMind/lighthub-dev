@@ -1,6 +1,6 @@
 # LightHub Dev
 
-Atajos para cuando la IA no te da la solución: guías cortas de Lit, JS/TS, React, Angular, React Native y Expo, IA y agentes, seguridad con IA y SEO/GEO. Sitio **estático** (HTML generado, sin dependencias de ejecución).
+Atajos para cuando la IA no te da la solución: guías cortas de Lit, JS/TS, React, Angular, React Native y Expo, IA y agentes, ahorro de tokens y costes, seguridad con IA y SEO/GEO. Sitio **estático** (HTML generado, sin dependencias de ejecución).
 
 ## Uso
 ```bash
@@ -30,3 +30,6 @@ En Vercel se mide el número de visitas con Vercel Web Analytics, sin cookies ni
 
 ## SEO/GEO del propio sitio
 Título y descripción únicos, canonical, Open Graph, JSON-LD `TechArticle`, `sitemap.xml`, `robots.txt` y `llms.txt` (con `SITE_URL` definido).
+
+## Añadir contenido nuevo
+Usa las plantillas: `plantillas/LEEME.md` explica el flujo (`python tools/nueva_pagina.py`, `python tools/validar.py`, `python build.py -W error`).

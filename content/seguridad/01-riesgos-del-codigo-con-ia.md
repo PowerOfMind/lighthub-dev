@@ -53,7 +53,7 @@ El código generado **compila y parece correcto**. Eso es justo el riesgo: la IA
 - Solo con HTTPS
 ! Cualquiera puede llamar al endpoint directamente.
 ? ¿Qué lista recorres si tu app llama a modelos?
-- OWASP Top 10 para LLM
+* OWASP Top 10 para LLM
 - ISO 9001
 - Lighthouse
 ! Además del Top 10 web, cubre inyección de prompt y consumo excesivo.

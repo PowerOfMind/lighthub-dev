@@ -30,6 +30,9 @@ Los tokens se gastan en lo que **lee** el modelo (contexto) más que en lo que e
 > [!TIP] Medir
 > Mira el uso de contexto del agente de vez en cuando. Si una tarea supera el 50 % del contexto, resume y empieza de nuevo con ese resumen.
 
+> [!TIP] Guía ampliada
+> Descubre [qué son los tokens y la ventana de contexto](@/tokens/que-son-los-tokens-y-la-ventana-de-contexto) y [cómo ahorrar tokens en Claude Code](@/tokens/ahorrar-tokens-en-claude-code).
+
 === esquema
 # Qué gasta
 - Contexto leído — cada mensaje reenvía el historial.
