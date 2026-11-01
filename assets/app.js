@@ -26,6 +26,7 @@
   });
 
   // copiar
+  $$('.copy').forEach(function (x) { x.textContent = b.dataset.copy || x.textContent; });
   d.addEventListener('click', function (e) {
     var t = e.target; if (!t.classList.contains('copy')) return;
     var label = b.dataset.copy || 'Copy', done = b.dataset.copied || 'Copied';
@@ -37,28 +38,34 @@
 
   // Resaltado léxico sin alterar el texto utilizado por Copiar.
   var KW = /\b(const|let|var|function|return|if|else|for|while|import|from|export|default|class|extends|new|this|async|await|type|interface|static|true|false|null|undefined|def|in|of|try|catch|throw|as|implements|public|private|readonly|accessor)\b/;
-  var RX = /<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#[\w-]+|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|<\/?[A-Za-z][\w.:-]*|@[\w-]+|=>|--?[\w-]+|\b\d+(?:\.\d+)?\b|[A-Za-z_$][\w$-]*/gm;
+  var RX = /<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/\/[^\n]*|#(?:[ \t!][^\n]*|$)|#[\w-]+|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|<\/?[A-Za-z][\w.:-]*|@[\w-]+|=>|--?[\w-]+|\b\d+(?:\.\d+)?\b|[A-Za-z_$][\w$-]*/gm;
+  var AFTER = { colon: /\s*:/y, open: /\s*[{,.#>]/y, eq: /\s*=/y, paren: /\s*\(/y };
+  function after(re, pos, s) { re.lastIndex = pos; return re.test(s); }
+  function prevChar(s, i, blanks) {
+    var j = i - 1; while (j >= 0 && blanks.indexOf(s[j]) >= 0) j--;
+    return j < 0 ? '\n' : s[j];
+  }
   function highlight(s, lang) {
     if (/^(text|plaintext|plain)$/.test(lang)) return esc(s);
-    var o = '', last = 0, m; RX.lastIndex = 0;
+    var shell = /^(bash|sh|shell)$/.test(lang), o = '', last = 0, m; RX.lastIndex = 0;
     while ((m = RX.exec(s))) {
       o += esc(s.slice(last, m.index));
-      var v = m[0], before = s.slice(0, m.index), after = s.slice(RX.lastIndex), cls = '';
-      if (/^(<!--|\/\*|\/\/)/.test(v)) cls = 'c';
-      else if (/^#/.test(v)) cls = lang === 'css' ? 'tag' : 'c';
-      else if (/^["'`]/.test(v)) cls = lang === 'json' && /^\s*:/.test(after) ? 'p' : 's';
+      var v = m[0], end = RX.lastIndex, cls = '';
+      if (/^(<!--|\/\*|\/\/)/.test(v) || /^#(?:[ \t!]|$)/.test(v)) cls = 'c';
+      else if (/^#/.test(v)) cls = lang === 'css' ? 'tag' : '';
+      else if (/^["'`]/.test(v)) cls = lang === 'json' && after(AFTER.colon, end, s) ? 'p' : 's';
       else if (/^<\/?/.test(v)) cls = 'tag';
-      else if (/^@/.test(v) || (/^(bash|sh|shell)$/.test(lang) && /^-/.test(v))) cls = 'a';
+      else if (/^@/.test(v) || (shell && /^-/.test(v))) cls = 'a';
       else if (v === '=>') cls = 'k';
       else if (/^\d/.test(v)) cls = 'n';
-      else if (lang === 'css') cls = /^\s*:/.test(after) ? 'p' : /^\s*[{,.#>]/.test(after) ? 'tag' : 's';
-      else if (/^(bash|sh|shell)$/.test(lang)) cls = /(?:^|[\n;|&])\s*$/.test(before) ? 'f' : '';
+      else if (lang === 'css') cls = after(AFTER.colon, end, s) ? 'p' : after(AFTER.open, end, s) ? 'tag' : 's';
+      else if (shell) cls = '\n;|&'.indexOf(prevChar(s, m.index, ' \t')) >= 0 ? 'f' : '';
+      else if (after(AFTER.eq, end, s) && s.lastIndexOf('<', m.index) > s.lastIndexOf('>', m.index)) cls = 'a';
       else if (KW.test(v)) cls = 'k';
-      else if (/\.\s*$/.test(before)) cls = 'p';
-      else if (/^\s*=/.test(after) && /<[^>]*$/.test(before)) cls = 'a';
+      else if (prevChar(s, m.index, ' \t\r\n') === '.') cls = 'p';
       else if (/^[A-Z]/.test(v)) cls = 'type';
-      else if (/^\s*\(/.test(after)) cls = 'f';
-      o += cls ? '<span class="t-' + cls + '">' + esc(v) + '</span>' : esc(v); last = RX.lastIndex;
+      else if (after(AFTER.paren, end, s)) cls = 'f';
+      o += cls ? '<span class="t-' + cls + '">' + esc(v) + '</span>' : esc(v); last = end;
     }
     return o + esc(s.slice(last));
   }
@@ -186,10 +193,12 @@
       pre.appendChild(d.createElement('code')); ta.parentNode.insertBefore(pre, ta);
       ta.parentNode.classList.add('has-highlight');
       ta.addEventListener('input', function () { updateEditor(ta); });
+      ta.addEventListener('blur', function () { delete ta.dataset.free; });
       ta.addEventListener('scroll', function () { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; });
       updateEditor(ta);
       ta.addEventListener('keydown', function (e) {
-        if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); var s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); updateEditor(ta); }
+        if (e.key === 'Escape') { ta.dataset.free = '1'; return; }
+        if (e.key === 'Tab' && !e.shiftKey && !ta.dataset.free) { e.preventDefault(); var s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); updateEditor(ta); }
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(sec); }
       });
     });

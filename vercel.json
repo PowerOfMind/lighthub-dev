@@ -1,5 +1,5 @@
 {
-  "buildCommand": "SITE_URL=https://lighthub-dev.vercel.app python3 build.py",
+  "buildCommand": "python3 tools/validar.py && SITE_URL=https://lighthub-dev.vercel.app python3 -W error build.py",
   "outputDirectory": "dist",
   "installCommand": "",
   "headers": [

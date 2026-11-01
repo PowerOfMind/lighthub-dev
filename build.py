@@ -11,10 +11,11 @@ ROOT = Path(__file__).parent
 OUT = ROOT / "dist"
 SITE = "LightHub Dev"
 SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
-SITE_HOST = urlparse(SITE_URL).hostname or ""
+# La analítica solo existe donde corre Vercel (variable VERCEL) o si se pide con ANALYTICS=1;
+# la copia de GitHub Pages no tiene /_vercel/insights y daría un 404 en cada página.
 ANALYTICS = ('<script defer src="/_vercel/insights/script.js"></script>'
              '<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)}</script>'
-             if SITE_HOST == "vercel.app" or SITE_HOST.endswith(".vercel.app") else "")
+             if os.environ.get("VERCEL") == "1" or os.environ.get("ANALYTICS") == "1" else "")
 PREFIX = os.environ.get("SITE_PREFIX", urlparse(SITE_URL).path.rstrip("/") + "/" if SITE_URL else "/")  # para el 404
 DEFAULT = "es"
 LANGS = {"es": ("Español", "es_ES"), "en": ("English", "en_US")}
@@ -276,13 +277,13 @@ def shell(lang, pages, base, cur, title, desc, main, rel, alts, ld="", mdurl="",
 T["es"].update(
     tabs=dict(leccion="Lección", esquema="Esquema", test="Test", prueba="Pruébalo"), tabl="Secciones del tema",
     ok="¡Correcto!", ko="Incorrecto.", score="Aciertos", run="Ejecutar", reset="Restaurar", reto="Reto", clave="Idea clave",
-    result="Resultado", retry="Reintentar", cons="Consola", sandbox="Se ejecuta en tu navegador, aislado.", jsl="JavaScript", jsx="JSX", tsx="TSX",
+    result="Resultado", retry="Reintentar", cons="Consola", sandbox="Se ejecuta en tu navegador, aislado. Esc y luego Tab para salir del editor.", jsl="JavaScript", jsx="JSX", tsx="TSX",
     secl="Secciones", qn="Pregunta {n} de {m}", kick="Guía {n} de {m} · {s}", prev="Anterior", next="Siguiente",
     st_g="guías", st_s="secciones", st_l="idiomas", start="Empezar")
 T["en"].update(
     tabs=dict(leccion="Lesson", esquema="Outline", test="Quiz", prueba="Try it"), tabl="Topic sections",
     ok="Correct!", ko="Not quite.", score="Score", run="Run", reset="Reset", reto="Challenge", clave="Key idea",
-    result="Result", retry="Try again", cons="Console", sandbox="Runs in your browser, sandboxed.", jsl="JavaScript", jsx="JSX", tsx="TSX",
+    result="Result", retry="Try again", cons="Console", sandbox="Runs in your browser, sandboxed. Press Esc, then Tab, to leave the editor.", jsl="JavaScript", jsx="JSX", tsx="TSX",
     secl="Sections", qn="Question {n} of {m}", kick="Guide {n} of {m} · {s}", prev="Previous", next="Next",
     st_g="guides", st_s="sections", st_l="languages", start="Start")
 
@@ -311,7 +312,7 @@ def render_test(txt, t, base):
     while i < len(L):
         l = L[i]
         if l.startswith("? "):
-            q = dict(q=l[2:], code="", lang="", o=[], a=0, f=""); qs.append(q)
+            q = dict(q=l[2:], code="", lang="", o=[], a=0, f="", marcas=0); qs.append(q)
         elif l.startswith("```") and q is not None and not q["o"]:
             q["lang"] = l[3:].strip()
             i += 1; buf = []
@@ -319,14 +320,16 @@ def render_test(txt, t, base):
                 buf.append(L[i]); i += 1
             q["code"] = "\n".join(buf)
         elif l[:2] in ("- ", "* ") and q is not None:
-            if l[0] == "*": q["a"] = len(q["o"])
+            if l[0] == "*": q["a"] = len(q["o"]); q["marcas"] += 1
             q["o"].append(l[2:])
         elif l.startswith("! ") and q is not None:
             q["f"] = l[2:]
         i += 1
     items = []
     for n, q in enumerate(qs, 1):
-        code = f'<pre class="qc"><code class="language-{esc(q["lang"])}">{esc(q["code"])}</code></pre>' if q["code"] else ""
+        if len(q["o"]) < 2 or q["marcas"] != 1:
+            raise ValueError(f"la pregunta «{q['q'][:50]}» necesita 2 opciones o más y exactamente una respuesta marcada con *")
+        code =f'<pre class="qc"><code class="language-{esc(q["lang"])}">{esc(q["code"])}</code></pre>' if q["code"] else ""
         opts = "".join(f'<button type="button" class="o opt"{" data-c=1" if k == q["a"] else ""}>{inline(o, base)}</button>' for k, o in enumerate(q["o"]))
         items.append(f'<li class="q card"><p class="qcount">{t["qn"].format(n=n, m=len(qs))}</p><p class="qtext">{inline(q["q"], base)}</p>{code}<div class="opts" role="group">{opts}</div>'
                      f'<p class="fb" hidden>{inline(q["f"], base)}</p></li>')
@@ -334,9 +337,7 @@ def render_test(txt, t, base):
             f'<ol style="list-style:none;margin:0;padding:0">{"".join(items)}</ol>'
             f'<p class="score" aria-live="polite"></p><button type="button" class="retry btn" hidden>{t["retry"]}</button></div>')
 
-ES_PRUEBA = {}
-
-def render_prueba(txt, t, base, rel=""):
+def render_prueba(txt, t, base):
     intro = re.split(r"^## ", txt, maxsplit=1, flags=re.M)[0].strip()
     out = [md(intro, base)] if intro else []
     for n, g in enumerate(re.split(r"^## ", txt, flags=re.M)[1:], 1):
@@ -391,8 +392,12 @@ def pagina(p, pages, vers, alts):
     lec = hero + "".join(cards) + versiones(p, vers)
     panels = [("leccion", lec)]
     if "esquema" in sec: panels.append(("esquema", render_esquema(sec["esquema"], lroot, p["title"])))
-    if "test" in sec: panels.append(("test", render_test(sec["test"], t, lroot)))
-    if "prueba" in sec: panels.append(("prueba", render_prueba(sec["prueba"], t, lroot, p["rel"])))
+    if "test" in sec:
+        try:
+            panels.append(("test", render_test(sec["test"], t, lroot)))
+        except ValueError as e:
+            sys.exit(f"{p['url']}: {e}")
+    if "prueba" in sec: panels.append(("prueba", render_prueba(sec["prueba"], t, lroot)))
     tabs = ""
     if len(panels) > 1:
         tabs = (f'<div class="tabs"><div class="tabs-wrap"><div class="tabs-in" role="tablist" aria-label="{t["tabl"]}" style="--n:{len(panels)}">' + "".join(
@@ -429,7 +434,7 @@ def portada(lang, pages, vers, alts):
         if not ps: continue
         cards.append(f"<section class='card' id='{sec}' data-sec='{sec}'><h2>{esc(st)}</h2><p>{esc(d)}</p>"
                      f"<a class='btn primary small' href='{base}{ps[0]['url']}'>{t['start']}</a></section>")
-    n_g = sum(1 for p in pages)
+    n_g = len(pages)
     main = (f"<article class='lec'><header class='lec-hero'><div class='lec-kicker'>{SITE}</div><h1 class='lec-title'>{t['lema']}</h1>"
             f"<p class='lec-intro'>{t['hero'].format(d=esc(vers.get('checked', '—')))}</p></header>"
             f"<div class='stats'><div class='stat'><b>{n_g}</b><span>{t['st_g']}</span></div>"
@@ -494,10 +499,6 @@ def main():
     vp = ROOT / "data" / "versions.json"
     vers = json.loads(vp.read_text(encoding="utf-8")) if vp.exists() else {}
     allp = {l: cargar(l) for l in LANGS}
-    for p in allp[DEFAULT]:
-        ES_PRUEBA[p["rel"]] = split_sections(p["body"]).get("prueba", "")
-    for l in LANGS:
-        CALLOUTS.update(T[l]["callouts"]) if l == DEFAULT else None
     for l, pages in allp.items():
         ok = {p["rel"][:-5] for p in pages}
         mal = [(p["url"], m) for p in pages for m in re.findall(r"\(@/([^)]+)\)", p["body"]) if m not in ok]

@@ -14,7 +14,8 @@ jobs:
         with: { python-version: "3.12" }
       - name: Construir
         run: |
-          SITE_PREFIX="/${GITHUB_REPOSITORY#*/}/" SITE_URL="https://lighthub-dev.vercel.app" python build.py
+          python tools/validar.py
+          SITE_PREFIX="/${GITHUB_REPOSITORY#*/}/" SITE_URL="https://lighthub-dev.vercel.app" python -W error build.py
           rm dist/sitemap.xml
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }

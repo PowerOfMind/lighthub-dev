@@ -22,9 +22,9 @@ Las secciones se declaran en `T` de `build.py` para cada idioma; el nombre del s
 
 ## Despliegue
 
-El proyecto de Vercel `lighthub-dev`, conectado a `PowerOfMind/lighthub-dev`, construye y despliega producción con cada push a `main`. La configuración de la raíz ejecuta `SITE_URL=https://lighthub-dev.vercel.app python3 build.py`, sin instalar dependencias, y publica `dist/`. GitHub Pages también se publica con cada push a `main`.
+El proyecto de Vercel `lighthub-dev`, conectado a `PowerOfMind/lighthub-dev`, construye y despliega producción con cada push a `main`. La configuración de la raíz ejecuta primero `python3 tools/validar.py` y después `SITE_URL=https://lighthub-dev.vercel.app python3 build.py`, sin instalar dependencias (si el validador falla, no se publica nada), y publica `dist/`. GitHub Pages también se publica con cada push a `main`.
 
-Para desplegar manualmente en Vercel, construye primero con `SITE_URL=https://lighthub-dev.vercel.app` y después, desde `dist/`, ejecuta `vercel link --yes --project lighthub-dev` y `vercel deploy --prod --yes`. El generador elimina las opciones de construcción del `vercel.json` de `dist/` y conserva las cabeceras y redirecciones.
+Para desplegar manualmente en Vercel, construye primero con `ANALYTICS=1 SITE_URL=https://lighthub-dev.vercel.app` (la analítica solo se incluye en Vercel, donde existe la variable `VERCEL`, o con `ANALYTICS=1`) y después, desde `dist/`, ejecuta `vercel link --yes --project lighthub-dev` y `vercel deploy --prod --yes`. El generador elimina las opciones de construcción del `vercel.json` de `dist/` y conserva las cabeceras y redirecciones.
 
 En Vercel se mide el número de visitas con Vercel Web Analytics, sin cookies ni identificación de personas, mediante datos agregados y sin fingerprinting persistente. GitHub Pages no incluye esta analítica. Más información en la página de privacidad.
 
