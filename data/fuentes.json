@@ -22,7 +22,7 @@
   },
   "Claude Code (releases)": {
    "url": "https://github.com/anthropics/claude-code/releases.atom",
-   "ultimo": "v2.1.312"
+   "ultimo": "v2.1.316"
   },
   "Model Context Protocol (releases)": {
    "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/releases.atom",
@@ -41,5 +41,5 @@
    "ultimo": "What's New in WebGPU (Chrome 155-156)"
   }
  },
- "checked": "2026-10-29"
+ "checked": "2026-11-02"
 }

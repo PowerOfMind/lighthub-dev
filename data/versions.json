@@ -1,11 +1,17 @@
 {
- "checked": "2026-10-29",
+ "checked": "2026-11-02",
  "pkgs": {
   "@angular/cli": {
    "v": "22.2.5"
   },
+  "@angular/common": {
+   "v": "22.2.4"
+  },
   "@angular/core": {
-   "v": "22.2.3"
+   "v": "22.2.4"
+  },
+  "@angular/forms": {
+   "v": "22.2.4"
   },
   "@anthropic-ai/sdk": {
    "v": "1.3.0"
@@ -25,17 +31,23 @@
   "@modelcontextprotocol/sdk": {
    "v": "1.32.2"
   },
+  "@playwright/test": {
+   "v": "1.64.1"
+  },
   "@tanstack/react-query": {
-   "v": "5.105.0"
+   "v": "5.105.2"
+  },
+  "@testing-library/react": {
+   "v": "16.3.3"
   },
   "@web/test-runner": {
    "v": "1.0.0"
   },
   "ai": {
-   "v": "7.0.156"
+   "v": "7.0.159"
   },
   "better-auth": {
-   "v": "1.7.14"
+   "v": "1.7.15"
   },
   "date-fns": {
    "v": "4.4.0"
@@ -44,13 +56,28 @@
    "v": "0.45.4"
   },
   "eslint": {
-   "v": "10.13.0"
+   "v": "10.14.0"
+  },
+  "expo": {
+   "v": "58.0.22"
+  },
+  "expo-constants": {
+   "v": "58.0.14"
+  },
+  "expo-notifications": {
+   "v": "58.1.7"
+  },
+  "expo-router": {
+   "v": "58.0.29"
+  },
+  "expo-updates": {
+   "v": "58.0.20"
   },
   "express": {
    "v": "5.3.0"
   },
   "hono": {
-   "v": "4.13.14"
+   "v": "4.13.16"
   },
   "langchain": {
    "v": "1.6.0"
@@ -59,25 +86,34 @@
    "v": "3.3.3"
   },
   "next": {
-   "v": "16.4.3"
+   "v": "16.4.4"
   },
   "next-auth": {
    "v": "4.24.15"
   },
   "openai": {
-   "v": "7.45.1"
+   "v": "7.47.0"
   },
   "playwright": {
    "v": "1.64.1"
   },
   "prisma": {
-   "v": "8.0.0-rc.28"
+   "v": "8.0.0-rc.29"
   },
   "react": {
    "v": "19.3.1"
   },
   "react-dom": {
    "v": "19.3.1"
+  },
+  "react-native": {
+   "v": "0.88.1"
+  },
+  "react-native-safe-area-context": {
+   "v": "5.11.0"
+  },
+  "rxjs": {
+   "v": "7.8.2"
   },
   "tailwindcss": {
    "v": "4.3.3"
