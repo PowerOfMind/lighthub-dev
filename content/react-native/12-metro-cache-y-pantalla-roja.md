@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Metro muestra una pantalla roja y los cambios no aparecen
 desc: Revisa una pantalla roja de Metro, identifica errores de importación y aprende a limpiar la caché en Expo o React Native CLI.
 pkgs: expo, react-native

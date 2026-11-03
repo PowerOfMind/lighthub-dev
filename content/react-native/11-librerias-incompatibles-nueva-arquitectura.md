@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Librería incompatible con la Nueva Arquitectura de React Native
 desc: Comprueba la compatibilidad de una librería con la Nueva Arquitectura de React Native y conoce las opciones para resolver el problema.
 pkgs: expo, react-native

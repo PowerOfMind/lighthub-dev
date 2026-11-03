@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Outdated or invented APIs
 desc: Outdated or invented APIs can break generated code. Learn to check installed versions, TypeScript definitions and migration guides.
 ---

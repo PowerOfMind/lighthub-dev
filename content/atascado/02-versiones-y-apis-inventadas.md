@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: APIs obsoletas o inventadas
 desc: APIs obsoletas o inventadas en código generado por IA, con pistas para detectar versiones incompatibles y contrastar la documentación real.
 ---

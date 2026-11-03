@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Push notifications do not arrive in Expo
 desc: Push notifications do not arrive in Expo when permissions, token or credentials are missing; check delivery and the installed build.
 pkgs: expo, expo-notifications, expo-constants

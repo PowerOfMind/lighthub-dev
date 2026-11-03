@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Las notificaciones push no llegan en Expo
 desc: Las notificaciones push no llegan en Expo si faltan permisos, el token o las credenciales; comprueba el envío y la build instalada.
 pkgs: expo, expo-notifications, expo-constants

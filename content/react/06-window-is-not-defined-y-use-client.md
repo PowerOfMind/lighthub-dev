@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: window is not defined en Next.js
 desc: window is not defined aparece al usar APIs del navegador en el servidor de Next.js; mueve el acceso al cliente y comprueba el render inicial.
 pkgs: next, react

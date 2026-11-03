@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Expo does not ask for iOS or Android permissions again
 desc: Learn why Expo may not ask for permissions again on iOS or Android, how to configure each platform and test a new build.
 pkgs: expo, react-native

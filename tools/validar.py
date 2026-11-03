@@ -19,6 +19,7 @@ import build  # noqa: E402
 
 CONTENT = ROOT / "content"
 SIN_TEST = {"privacidad.md"}
+AVISOS = []
 
 
 def clave(p):
@@ -46,6 +47,10 @@ def revisar(p, descs):
     descs[desc] = r
     if "TODO" in re.sub(r"```.*?```", "", body, flags=re.S):
         errores.append(f"{r}: quedan TODO sin rellenar")
+    imagenes = re.findall(r"^!\[[^\]]+\]\((/[^)\s]+)\)", re.sub(r"```.*?```", "", body, flags=re.S), re.M)
+    errores += [f"{r}: la imagen {i} no existe" for i in imagenes if not (ROOT / i.lstrip("/")).is_file()]
+    if meta.get("tipo") == "error" and not imagenes:
+        AVISOS.append(f"{r}: error sin captura (añade ![descripción](/assets/errores/nombre.png))")
     if p.name in SIN_TEST:
         return errores
     sec = build.split_sections(body)
@@ -71,6 +76,8 @@ def main():
     errores += [f"content/en/{f}: falta la versión ES" for f in sorted(en - es)]
     for e in errores:
         print("ERROR", e)
+    for a in AVISOS:
+        print("AVISO", a)
     print(f"{len(paginas)} páginas revisadas, {len(errores)} errores")
     sys.exit(1 if errores else 0)
 

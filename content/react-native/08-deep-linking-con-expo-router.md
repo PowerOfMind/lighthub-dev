@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Los deep links no abren la pantalla en Expo Router
 desc: Los deep links no abren la pantalla en Expo Router si el esquema, la ruta o la asociación del dominio no coinciden con la aplicación.
 pkgs: expo, expo-router

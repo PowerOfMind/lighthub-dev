@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Metro shows a red screen and changes do not appear
 desc: Investigate a Metro red screen, check import errors and learn how to clear the cache in an Expo project or the React Native CLI.
 pkgs: expo, react-native

@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Deep links do not open the screen in Expo Router
 desc: Deep links do not open the screen in Expo Router when the scheme, route or domain association does not match the installed app.
 pkgs: expo, expo-router

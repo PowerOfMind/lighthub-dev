@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: EAS Build fails in Gradle or JavaScript bundling
 desc: Diagnose EAS Build failures in Gradle or JavaScript bundling by inspecting logs, dependencies, uploaded files and configuration.
 pkgs: expo, react-native

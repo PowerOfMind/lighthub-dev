@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: EAS Build falla en Gradle o al empaquetar JavaScript
 desc: Diagnostica fallos de EAS Build en Gradle o al empaquetar JavaScript revisando logs, dependencias y configuración nativa.
 pkgs: expo, react-native

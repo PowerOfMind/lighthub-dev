@@ -1,8 +1,12 @@
 ---
+tipo: error
 title: TODO title as a person would type it into Google (the error message or the problem)
 desc: TODO 120-155 characters. Start with the symptom, say what the page covers and who it is for.
 pkgs: TODO npm packages separated by commas (optional; the weekly watcher reads them)
 ---
+## What it looks like
+![TODO alt text: what the screenshot shows](/assets/errores/TODO-nombre.png)
+
 ## Symptom
 ```text
 TODO LITERAL error message copied from the documentation or the terminal (never translated or invented)

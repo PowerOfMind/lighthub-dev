@@ -214,3 +214,12 @@ footer{padding:18px 16px;color:var(--muted);font-size:13.5px;text-align:center}
 .cx-ed.has-highlight textarea{position:relative;background:transparent;color:transparent;caret-color:var(--text)}
 .cx-ed.has-highlight textarea::selection{color:#fff;background:#174ea6}
 @media (forced-colors:active){.cx-ed .hl{display:none}.cx-ed.has-highlight textarea{color:CanvasText;caret-color:auto}}
+/* Lecciones y errores separados */
+.navt{margin:14px 4px 8px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.navt.error{color:var(--bad)}
+.navt.error::before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:var(--bad)}
+article .navt{margin:26px 0 10px}.sub{margin:0 0 12px;color:var(--muted);font-size:14px}
+.badge-err{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--bad-soft);color:var(--bad);font-size:12px;letter-spacing:.04em}
+figure.shot{margin:0 0 16px}
+figure.shot img{display:block;max-width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+figure.shot figcaption{margin-top:6px;font-size:13px;color:var(--muted)}

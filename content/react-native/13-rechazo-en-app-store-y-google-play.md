@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Rechazo por permisos y configuración nativa en Expo
 desc: Revisa rechazos por permisos y configuración nativa en Expo, consulta el aviso de la tienda y prepara y prueba una nueva build.
 pkgs: expo, react-native

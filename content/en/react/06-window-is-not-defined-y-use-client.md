@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: window is not defined in Next.js
 desc: window is not defined when Next.js server rendering reaches browser APIs; move the access to the client and check the initial render.
 pkgs: next, react

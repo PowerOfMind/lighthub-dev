@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Hydration failed in Next.js
 desc: Hydration failed in Next.js when server HTML differs from the initial client render; find the mismatch and make the output consistent.
 pkgs: next, react, react-dom

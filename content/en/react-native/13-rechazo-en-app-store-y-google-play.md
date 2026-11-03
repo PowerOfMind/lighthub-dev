@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Store rejection for permissions and native configuration in Expo
 desc: Review store rejection notices involving permissions and native configuration in Expo, then prepare and test a new build.
 pkgs: expo, react-native

@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Expo no vuelve a pedir permisos en iOS o Android
 desc: Descubre por qué Expo no vuelve a pedir permisos en iOS o Android, cómo configurar cada plataforma y probar una nueva build.
 pkgs: expo, react-native

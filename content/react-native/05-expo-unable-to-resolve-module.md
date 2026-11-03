@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Unable to resolve module en Expo
 desc: Unable to resolve module en Expo impide generar el bundle; revisa la ruta del import, la instalación y los archivos enviados a EAS.
 pkgs: expo, react-native

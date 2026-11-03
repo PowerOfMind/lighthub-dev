@@ -5,8 +5,8 @@ Tienes contenido (apuntes, un error que has resuelto, una idea) y quieres que ac
 ## 1. Elige el tipo de página
 | Tipo | Úsalo para | Plantilla |
 |---|---|---|
-| `error` | Un error concreto o una migración: síntoma, causa, arreglo | [error.md](error.md) |
-| `guia` | Un concepto, una comparativa, una lista de hábitos o pasos | [guia.md](guia.md) |
+| `error` | Un error concreto: captura, síntoma, causa, arreglo. Va en el bloque **Errores** del menú (cabecera `tipo: error`) | [error.md](error.md) |
+| `guia` | Un concepto, una migración, una comparativa, una lista de hábitos o pasos. Va en **Lecciones** | [guia.md](guia.md) |
 
 ## 2. Crea los ficheros (ES y EN a la vez)
 ```bash
@@ -32,6 +32,7 @@ python build.py -W error
 Commit y `git push origin main`: Vercel construye y publica solo (el proyecto `lighthub-dev` está conectado al repositorio).
 
 ## Formato rápido
+- Capturas de errores: guarda el PNG en `assets/errores/` y ponlo en su propia línea: `![Qué se ve en la captura](/assets/errores/nombre.png)`. El texto alternativo es obligatorio. `validar.py` avisa de los errores sin captura y falla si el fichero no existe.
 - Cabecera: `title`, `desc` y, si hay paquetes npm, `pkgs: a, b` (los vigila el flujo semanal de novedades).
 - Avisos: `> [!TIP] Título` / `[!WARN]` / `[!AI]` / `[!SEC]` / `[!NOTE]`, en líneas que empiezan por `>`.
 - Enlaces internos: `(@/seccion/slug)` sin número ni `.md`. Externos, normales.

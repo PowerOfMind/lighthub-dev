@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: NullInjectorError: No provider for a service in Angular
 desc: NullInjectorError: No provider for means Angular cannot find a provider; follow the injection chain and register the correct token.
 pkgs: @angular/core

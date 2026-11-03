@@ -107,7 +107,7 @@ def inline(t, base):
         out.append(p)
     return "".join(out)
 
-BLOCK = re.compile(r"^(```|#{2,3} |\||>|\s*([-*]|\d+\.) )")
+BLOCK = re.compile(r"^(```|!\[|#{2,3} |\||>|\s*([-*]|\d+\.) )")
 CALLOUTS = {"TIP": "Truco", "WARN": "Cuidado", "AI": "Con IA", "SEC": "Seguridad", "NOTE": "Nota"}
 
 def md(src, base, heads=None):
@@ -115,6 +115,14 @@ def md(src, base, heads=None):
     while i < len(L):
         l = L[i]
         if not l.strip():
+            i += 1
+        elif re.match(r"!\[[^\]]*\]\([^)\s]+\)\s*$", l):
+            m = re.match(r"!\[([^\]]*)\]\(([^)\s]+)\)", l)
+            ruta = m.group(2)
+            if ruta.startswith("/"):  # raíz del sitio, también desde /en/
+                ruta = (base[:-3] if base.endswith("en/") else base) + ruta.lstrip("/")
+            h.append(f'<figure class="shot"><img src="{html.escape(ruta)}" alt="{html.escape(m.group(1))}" loading="lazy">'
+                     f'<figcaption>{esc(m.group(1))}</figcaption></figure>')
             i += 1
         elif l.startswith("```"):
             lang, buf = l[3:].strip(), []
@@ -184,7 +192,7 @@ def cargar(lang):
             rel = f"{sec}/{slug}.html"
             mod = meta.get("updated") or git_date(f.relative_to(ROOT)) or date.today().isoformat()
             pages.append(dict(lang=lang, sec=sec, stitle=stitle, slug=slug, rel=rel, url=purl(lang, rel), body=body,
-                              title=meta.get("title", slug), desc=meta.get("desc", ""),
+                              title=meta.get("title", slug), desc=meta.get("desc", ""), tipo="error" if meta.get("tipo") == "error" else "leccion",
                               pkgs=[p.strip() for p in meta.get("pkgs", "").split(",") if p.strip()],
                               mod=mod, created=git_date(f.relative_to(ROOT), True) or mod))
     return pages
@@ -198,16 +206,19 @@ def canon(lang, rel):
 def sidebar(pages, base, cur, lang):
     t = T[lang]
     s = [f"<nav id='nav' aria-label='{esc(t['secl'])}'>"]
-    for sec, st, _ in t["secs"]:
-        ps = [p for p in pages if p["sec"] == sec]
-        if not ps: continue
-        op = " open" if cur and cur["sec"] == sec else ""
-        s.append(f'<details class="grp" data-sec="{sec}"{op}><summary><span>{esc(st)}</span><span class="cnt">{len(ps)}</span></summary>')
-        for n, p in enumerate(ps, 1):
-            c = ' aria-current="page"' if cur and p is cur else ""
-            k = " cur" if c else ""
-            s.append(f'<a class="trow{k}" href="{base}{p["url"]}"{c}><span class="tn">{n:02d}</span><span class="tt">{esc(p["title"])}</span></a>')
-        s.append("</details>")
+    for tipo in ("leccion", "error"):
+        grupos = [(sec, st, [p for p in pages if p["sec"] == sec and p["tipo"] == tipo]) for sec, st, _ in t["secs"]]
+        grupos = [g for g in grupos if g[2]]
+        if not grupos: continue
+        s.append(f'<h2 class="navt {tipo}">{esc(t["tipos"][tipo])}</h2>')
+        for sec, st, ps in grupos:
+            op = " open" if cur and cur["sec"] == sec and cur["tipo"] == tipo else ""
+            s.append(f'<details class="grp" data-sec="{sec}-{tipo}"{op}><summary><span>{esc(st)}</span><span class="cnt">{len(ps)}</span></summary>')
+            for n, p in enumerate(ps, 1):
+                c = ' aria-current="page"' if cur and p is cur else ""
+                k = " cur" if c else ""
+                s.append(f'<a class="trow{k}" href="{base}{p["url"]}"{c}><span class="tn">{n:02d}</span><span class="tt">{esc(p["title"])}</span></a>')
+            s.append("</details>")
     s.append("</nav>")
     return "".join(s)
 
@@ -279,13 +290,17 @@ T["es"].update(
     ok="¡Correcto!", ko="Incorrecto.", score="Aciertos", run="Ejecutar", reset="Restaurar", reto="Reto", clave="Idea clave",
     result="Resultado", retry="Reintentar", cons="Consola", sandbox="Se ejecuta en tu navegador, aislado. Esc y luego Tab para salir del editor.", jsl="JavaScript", jsx="JSX", tsx="TSX",
     secl="Secciones", qn="Pregunta {n} de {m}", kick="Guía {n} de {m} · {s}", prev="Anterior", next="Siguiente",
-    st_g="guías", st_s="secciones", st_l="idiomas", start="Empezar")
+    st_g="guías", st_s="secciones", st_l="idiomas", start="Empezar",
+    tipos=dict(leccion="Lecciones", error="Errores"), kick_err="{n} de {m} · {s}", badge_err="Error",
+    homee="Mensajes de error concretos con su captura, causa y arreglo.", fig="Captura", see_err="Ver errores")
 T["en"].update(
     tabs=dict(leccion="Lesson", esquema="Outline", test="Quiz", prueba="Try it"), tabl="Topic sections",
     ok="Correct!", ko="Not quite.", score="Score", run="Run", reset="Reset", reto="Challenge", clave="Key idea",
     result="Result", retry="Try again", cons="Console", sandbox="Runs in your browser, sandboxed. Press Esc, then Tab, to leave the editor.", jsl="JavaScript", jsx="JSX", tsx="TSX",
     secl="Sections", qn="Question {n} of {m}", kick="Guide {n} of {m} · {s}", prev="Previous", next="Next",
-    st_g="guides", st_s="sections", st_l="languages", start="Start")
+    st_g="guides", st_s="sections", st_l="languages", start="Start",
+    tipos=dict(leccion="Lessons", error="Errors"), kick_err="{n} of {m} · {s}", badge_err="Error",
+    homee="Specific error messages with a screenshot, the cause and the fix.", fig="Screenshot", see_err="See errors")
 
 def split_sections(body):
     parts = re.split(r"^=== (\w+)\s*$", body, flags=re.M)
@@ -366,7 +381,7 @@ def pagina(p, pages, vers, alts):
     base = "../" * p["url"].count("/")
     lroot = base + purl(lang, "")
     sec = split_sections(p["body"])
-    idx = [x for x in pages if x["sec"] == p["sec"]]
+    idx = [x for x in pages if x["sec"] == p["sec"] and x["tipo"] == p["tipo"]]
     k = idx.index(p)
     # lección: cabecera con índice numerado y una tarjeta por cada ## del texto
     chunks, cur_c, fence = [[None, []]], 0, False
@@ -386,8 +401,9 @@ def pagina(p, pages, vers, alts):
         toc_items.append(f'<a class="lec-toc-b" href="#{sid}"><span class="lec-n">{num}</span>{inline(h2, lroot)}</a>')
         cards.append(f'<section class="lec-s" id="{sid}"><h2 class="lec-h"><span class="lec-n">{num}</span>{inline(h2, lroot)}</h2>{md(txt, lroot)}</section>')
     toc = f'<div class="lec-toc"><span class="lec-toc-t">{t["toc"]}</span>{"".join(toc_items)}</div>' if len(toc_items) > 1 else ""
-    kicker = t["kick"].format(n=k + 1, m=len(idx), s=p["stitle"])
-    hero = (f'<header class="lec-hero"><div class="lec-kicker">{esc(kicker)}</div><h1 class="lec-title">{esc(p["title"])}</h1>'
+    kicker = t["kick_err" if p["tipo"] == "error" else "kick"].format(n=k + 1, m=len(idx), s=p["stitle"])
+    badge = f'<span class="badge-err">{esc(t["badge_err"])}</span> ' if p["tipo"] == "error" else ""
+    hero = (f'<header class="lec-hero"><div class="lec-kicker">{badge}{esc(kicker)}</div><h1 class="lec-title">{esc(p["title"])}</h1>'
             f'<p class="lec-intro">{esc(p["desc"])}</p>{toc}</header>')
     lec = hero + "".join(cards) + versiones(p, vers)
     panels = [("leccion", lec)]
@@ -418,7 +434,7 @@ def pagina(p, pages, vers, alts):
               "image": SITE_URL + "/assets/og.png", "about": p["stitle"]},
              {"@type": "BreadcrumbList", "itemListElement": [
                  {"@type": "ListItem", "position": 1, "name": t["home"], "item": canon(lang, "index.html")},
-                 {"@type": "ListItem", "position": 2, "name": p["stitle"], "item": canon(lang, "index.html") + "#" + p["sec"]},
+                 {"@type": "ListItem", "position": 2, "name": p["stitle"], "item": canon(lang, "index.html") + "#" + p["sec"] + ("-error" if p["tipo"] == "error" else "")},
                  {"@type": "ListItem", "position": 3, "name": p["title"], "item": u}]},
              {"@type": "Organization", "@id": SITE_URL + "/#org", "name": SITE, "url": SITE_URL + "/", "logo": SITE_URL + "/assets/icon.svg", "sameAs": ["https://github.com/PowerOfMind/lighthub-dev"]},
              {"@type": "WebSite", "@id": SITE_URL + "/#site", "name": SITE, "url": SITE_URL + "/", "publisher": {"@id": SITE_URL + "/#org"}}]
@@ -428,19 +444,26 @@ def pagina(p, pages, vers, alts):
 def portada(lang, pages, vers, alts):
     t = T[lang]
     base = "../" * (0 if lang == DEFAULT else 1)
-    cards = []
-    for sec, st, d in t["secs"]:
-        ps = [p for p in pages if p["sec"] == sec]
-        if not ps: continue
-        cards.append(f"<section class='card' id='{sec}' data-sec='{sec}'><h2>{esc(st)}</h2><p>{esc(d)}</p>"
-                     f"<a class='btn primary small' href='{base}{ps[0]['url']}'>{t['start']}</a></section>")
+    grupos = {}
+    for tipo in ("leccion", "error"):
+        cards = []
+        for sec, st, d in t["secs"]:
+            ps = [p for p in pages if p["sec"] == sec and p["tipo"] == tipo]
+            if not ps: continue
+            cards.append(f"<section class='card' id='{sec}{'-error' if tipo == 'error' else ''}' data-sec='{sec}'><h2>{esc(st)}</h2>"
+                         f"<p>{esc(d) if tipo == 'leccion' else ' · '.join(esc(x['title']) for x in ps[:2])}</p>"
+                         f"<a class='btn primary small' href='{base}{ps[0]['url']}'>{t['start'] if tipo == 'leccion' else t['see_err']} ({len(ps)})</a></section>")
+        grupos[tipo] = cards
+    cards = grupos["leccion"]
     n_g = len(pages)
     main = (f"<article class='lec'><header class='lec-hero'><div class='lec-kicker'>{SITE}</div><h1 class='lec-title'>{t['lema']}</h1>"
             f"<p class='lec-intro'>{t['hero'].format(d=esc(vers.get('checked', '—')))}</p></header>"
             f"<div class='stats'><div class='stat'><b>{n_g}</b><span>{t['st_g']}</span></div>"
-            f"<div class='stat'><b>{len(cards)}</b><span>{t['st_s']}</span></div>"
+            f"<div class='stat'><b>{len({p['sec'] for p in pages})}</b><span>{t['st_s']}</span></div>"
             f"<div class='stat'><b>{len(LANGS)}</b><span>{t['st_l']} · ES / EN</span></div></div>"
-            f"<div class='ov'>{''.join(cards)}</div></article>")
+            f"<h2 class='navt leccion'>{t['tipos']['leccion']}</h2><div class='ov'>{''.join(grupos['leccion'])}</div>"
+            + (f"<h2 class='navt error'>{t['tipos']['error']}</h2><p class='sub'>{t['homee']}</p><div class='ov'>{''.join(grupos['error'])}</div>" if grupos["error"] else "")
+            + "</article>")
     ld = ""
     if SITE_URL:
         g = [{"@type": "WebSite", "@id": SITE_URL + "/#site", "name": SITE, "url": SITE_URL + "/", "inLanguage": list(LANGS), "description": t["lema"],
@@ -525,10 +548,10 @@ def main():
         idx = []
         llms += [f"## {LANGS[l][0]}", ""]
         llms += [f"- [{privacy_title}]({(SITE_URL + '/' if SITE_URL else '')}{purl(l, 'privacidad.md')}): {privacy_desc}", ""]
-        for sec, st, _ in T[l]["secs"]:
-            ps = [p for p in pages if p["sec"] == sec]
+        for sec, st, tipo in [(a, b, k) for k in ("leccion", "error") for a, b, _ in T[l]["secs"]]:
+            ps = [p for p in pages if p["sec"] == sec and p["tipo"] == tipo]
             if not ps: continue
-            llms.append(f"### {st}")
+            llms.append(f"### {st}" + (f" · {T[l]['tipos']['error']}" if tipo == "error" else ""))
             for p in ps:
                 (OUT / purl(l, sec)).mkdir(parents=True, exist_ok=True)
                 (OUT / p["url"]).write_text(pagina(p, pages, vers, alts(p["rel"])), encoding="utf-8")
@@ -537,8 +560,9 @@ def main():
                 full.append(md_text)
                 llms.append(f"- [{p['title']}]({(SITE_URL + '/' if SITE_URL else '')}{p['url'][:-5]}.md): {p['desc']}")
                 txt = re.sub(r"```.*?```", " ", split_sections(p["body"])["leccion"], flags=re.S)
+                txt = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", txt)
                 txt = re.sub(r"[#*`|>\[\]()-]+", " ", txt)
-                idx.append(dict(t=p["title"], s=p["stitle"], u=p["url"], d=p["desc"], x=re.sub(r"\s+", " ", txt)[:1500]))
+                idx.append(dict(t=p["title"], s=p["stitle"] + (f" · {T[l]['tipos']['error']}" if tipo == "error" else ""), u=p["url"], d=p["desc"], x=re.sub(r"\s+", " ", txt)[:1500]))
                 sitemap.append((p["rel"], l, p["mod"]))
             llms.append("")
         (OUT / purl(l, "search.json")).write_text(json.dumps(idx, ensure_ascii=False), encoding="utf-8")

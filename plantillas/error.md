@@ -1,8 +1,12 @@
 ---
+tipo: error
 title: TODO título tal como lo escribiría la persona en Google (el mensaje de error o el problema)
 desc: TODO 120-155 caracteres. Empieza por el síntoma, di qué incluye la página y para quién es.
 pkgs: TODO paquetes npm separados por comas (opcional; los lee el vigilante de novedades)
 ---
+## Cómo se ve
+![TODO texto alternativo: qué muestra la captura](/assets/errores/TODO-nombre.png)
+
 ## Síntoma
 ```text
 TODO mensaje de error LITERAL copiado de la documentación o del terminal (no traducirlo ni inventarlo)

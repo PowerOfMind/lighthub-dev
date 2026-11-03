@@ -1,4 +1,5 @@
 ---
+tipo: error
 title: Library incompatible with React Native New Architecture
 desc: Check whether a library supports React Native’s New Architecture and explore the available options for resolving incompatibility.
 pkgs: expo, react-native
