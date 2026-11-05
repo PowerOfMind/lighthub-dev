@@ -2,6 +2,8 @@
 title: CSS that does not obey
 desc: CSS debugging helps developers fix stacking contexts, horizontal overflow, flex and grid sizing, mobile viewport height and touch issues.
 ---
+**Start here.** Inspect the element and its ancestors in DevTools. If `z-index` fails, find which ancestor creates the stacking context.
+
 ## z-index does not work
 An ancestor with `position`+`z-index`, `transform`, `opacity<1`, `filter` or `isolation` creates a **stacking context**. A child never escapes it. Fix by raising the ancestor, or moving the element out (modals: `<dialog>` + `showModal()` or a portal).
 

@@ -2,6 +2,8 @@
 title: La UI no se actualiza o parpadea
 desc: UI que no se actualiza o parpadea en React, Lit y otros frameworks, con causas de estado obsoleto, mutaciones y efectos en bucle.
 ---
+**Empieza aquí.** Registra el valor durante el render y dentro del callback. Si difieren, comprueba si el callback conserva un estado anterior.
+
 ## Estado obsoleto (stale closure)
 Un callback capturó el valor viejo.
 ```jsx

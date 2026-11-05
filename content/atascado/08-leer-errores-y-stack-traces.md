@@ -2,6 +2,8 @@
 title: Leer errores y stack traces
 desc: Guía práctica de leer errores y stack traces, errores frecuentes, decisiones y comprobaciones para resolver problemas con criterio.
 ---
+**Empieza aquí.** Copia el mensaje exacto y abre la primera línea relevante de tu código. Reproduce el fallo con una entrada concreta.
+
 ## Leer el mensaje
 Empieza por el tipo y el mensaje exacto; identifica archivo y línea relevantes de tu código. La primera línea de la pila no siempre es la causa raíz: sigue llamadas y causas encadenadas hasta el origen.
 

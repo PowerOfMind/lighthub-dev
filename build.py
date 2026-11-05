@@ -25,9 +25,8 @@ T = {
         lema="Atajos para cuando la IA no te da la solución",
         skip="Saltar al contenido", menu="Abrir menú", search="Buscar (pulsa /)", searchl="Buscar", theme="Cambiar tema",
         home="Inicio", toc="En esta página", vers="Versiones en npm", chk="comprobado", unk="sin comprobar",
-        rev="Revisado", news="Novedades", lang="Idioma", anchor="Enlace a la sección", copy="Copiar", copied="Copiado",
-        hero=("Resúmenes cortos, con código que se copia y los fallos típicos. Se genera como sitio estático y se contrasta "
-              "cada semana con la documentación oficial (última comprobación: {d})."),
+        rev="Última edición", news="Novedades", lang="Idioma", anchor="Enlace a la sección", copy="Copiar", copied="Copiado",
+        hero="Guías cortas con código listo para copiar y pasos para resolver fallos comunes.",
         see_all="Ver los {n} →", foot="contenido estático, revisado cada semana contra la documentación oficial.",
         newt="Novedades vigiladas", newl="Último dato de cada fuente oficial, comprobado el {d}. Un flujo semanal compara y abre una incidencia si algo cambia.",
         src="Fuente", last="Último dato", md="Versión en Markdown", nf="Página no encontrada", nfp="Esa página no existe o ha cambiado de sitio.",
@@ -48,9 +47,8 @@ T = {
         lema="Shortcuts for when AI can't give you the answer",
         skip="Skip to content", menu="Open menu", search="Search (press /)", searchl="Search", theme="Toggle theme",
         home="Home", toc="On this page", vers="npm versions", chk="checked", unk="unchecked",
-        rev="Reviewed", news="News", lang="Language", anchor="Link to section", copy="Copy", copied="Copied",
-        hero=("Short guides with copy-ready code and the usual failure modes. Built as a static site and checked "
-              "every week against the official documentation (last check: {d})."),
+        rev="Last edited", news="News", lang="Language", anchor="Link to section", copy="Copy", copied="Copied",
+        hero="Short guides with copy-ready code and steps to fix common problems.",
         see_all="See all {n} →", foot="static content, checked weekly against the official documentation.",
         newt="Watched sources", newl="Latest item from each official source, checked on {d}. A weekly job compares them and opens an issue when something changes.",
         src="Source", last="Latest item", md="Markdown version", nf="Page not found", nfp="That page does not exist or has moved.",
@@ -228,7 +226,10 @@ def versiones(p, vers):
     rows = []
     for k in p["pkgs"]:
         v = vers.get("pkgs", {}).get(k)
-        rows.append(f"<li><code>{esc(k)}</code> <span>{esc(v['v']) if v else t['unk']}</span></li>")
+        label = f"<code>{esc(k)}</code>"
+        if v:
+            label = f'<a href="https://www.npmjs.com/package/{html.escape(k, quote=True)}/v/{html.escape(v["v"], quote=True)}">{label}</a>'
+        rows.append(f"<li>{label} <span>{esc(v['v']) if v else t['unk']}</span></li>")
     return (f"<aside class='vers'><b>{t['vers']}</b> ({t['chk']} <time datetime='{esc(vers.get('checked', ''))}'>{esc(vers.get('checked', '—'))}</time>)"
             f"<ul>{''.join(rows)}</ul></aside>")
 
@@ -239,6 +240,12 @@ ICONS = dict(
     prueba='<path d="m8 8-5 4 5 4M16 8l5 4-5 4M14 5l-4 14"/>')
 
 def svg(path): return f'<svg viewBox="0 0 24 24" aria-hidden="true">{path}</svg>'
+
+def search_box(t, featured=False):
+    label = f'<label for="q">{t["find"]}</label>' if featured else ""
+    return (f'<div role="search" class="search-box">{label}'
+            f'<input id="q" class="sinput" type="search" placeholder="{t["search"]}" aria-label="{t["find"] if featured else t["searchl"]}" '
+            f'autocomplete="off" aria-controls="res"><ul id="res" data-empty="{t["nohits"]}" aria-live="polite" hidden></ul></div>')
 
 def shell(lang, pages, base, cur, title, desc, main, rel, alts, ld="", mdurl="", tabs="", kick=""):
     t = T[lang]
@@ -274,11 +281,11 @@ def shell(lang, pages, base, cur, title, desc, main, rel, alts, ld="", mdurl="",
 <script>document.documentElement.className='js';try{{var t=localStorage.getItem('lighthub-theme');if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head><body{' class="has-tabs"' if tabs else ''} data-base="{base}" data-search="{base}{purl(lang, 'search.json')}" data-copy="{esc(t['copy'])}" data-copied="{esc(t['copied'])}">
 <a class="skip" href="#main">{t['skip']}</a>
-<aside id="side"><div class="side-h"><a href="{home}"><small>{esc(t['lema'])}</small><strong>{logo}{SITE}</strong></a></div>
-<input id="q" class="sinput" type="search" placeholder="{t['search']}" aria-label="{t['searchl']}" autocomplete="off"><ul id="res" hidden></ul>
+<aside id="side"><div class="side-h"><a href="{home}"><strong>{logo}{SITE}</strong></a></div>
+{search_box(t) if rel != "index.html" else ""}
 {sidebar(pages, base, cur, lang)}</aside><div id="scrim" hidden></div>
 <div id="col"><header class="top"><div class="wrap appbar"><button id="menu" class="iconbtn" aria-controls="side" aria-expanded="false" aria-label="{t['menu']}">{svg('<path d="M4 6h16M4 12h16M4 18h16"/>')}</button>
-<div class="apptitle"><small>{esc(kick or SITE)}</small><strong>{esc(title if cur else t['lema'])}</strong></div>
+<div class="apptitle">{f'<small>{esc(kick)}</small>' if kick else ""}<strong>{esc(title)}</strong></div>
 <nav class="langs" aria-label="{t['lang']}">{langs}</nav>
 <button id="theme" class="iconbtn" aria-label="{t['theme']}">{svg('<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>')}</button></div>{tabs}</header>
 <main id="main" class="wrap">{main}</main>
@@ -290,17 +297,19 @@ T["es"].update(
     ok="¡Correcto!", ko="Incorrecto.", score="Aciertos", run="Ejecutar", reset="Restaurar", reto="Reto", clave="Idea clave",
     result="Resultado", retry="Reintentar", cons="Consola", sandbox="Se ejecuta en tu navegador, aislado. Esc y luego Tab para salir del editor.", jsl="JavaScript", jsx="JSX", tsx="TSX",
     secl="Secciones", qn="Pregunta {n} de {m}", kick="Guía {n} de {m} · {s}", prev="Anterior", next="Siguiente",
-    st_g="guías", st_s="secciones", st_l="idiomas", start="Empezar",
+    st_g="guías", st_s="secciones", st_l="idiomas", find="Busca un error, una tecnología o una tarea",
+    examples=("CORS", "La UI no se actualiza", "APIs inventadas"), nohits="No hay guías que coincidan.",
     tipos=dict(leccion="Lecciones", error="Errores"), kick_err="{n} de {m} · {s}", badge_err="Error",
-    homee="Mensajes de error concretos con su captura, causa y arreglo.", fig="Captura", see_err="Ver errores")
+    homee="Mensajes de error concretos con su captura, causa y arreglo.", fig="Captura")
 T["en"].update(
     tabs=dict(leccion="Lesson", esquema="Outline", test="Quiz", prueba="Try it"), tabl="Topic sections",
     ok="Correct!", ko="Not quite.", score="Score", run="Run", reset="Reset", reto="Challenge", clave="Key idea",
     result="Result", retry="Try again", cons="Console", sandbox="Runs in your browser, sandboxed. Press Esc, then Tab, to leave the editor.", jsl="JavaScript", jsx="JSX", tsx="TSX",
     secl="Sections", qn="Question {n} of {m}", kick="Guide {n} of {m} · {s}", prev="Previous", next="Next",
-    st_g="guides", st_s="sections", st_l="languages", start="Start",
+    st_g="guides", st_s="sections", st_l="languages", find="Search for an error, a technology or a task",
+    examples=("CORS", "UI does not update", "Invented APIs"), nohits="No matching guides.",
     tipos=dict(leccion="Lessons", error="Errors"), kick_err="{n} of {m} · {s}", badge_err="Error",
-    homee="Specific error messages with a screenshot, the cause and the fix.", fig="Screenshot", see_err="See errors")
+    homee="Specific error messages with a screenshot, the cause and the fix.", fig="Screenshot")
 
 def split_sections(body):
     parts = re.split(r"^=== (\w+)\s*$", body, flags=re.M)
@@ -405,7 +414,7 @@ def pagina(p, pages, vers, alts):
     badge = f'<span class="badge-err">{esc(t["badge_err"])}</span> ' if p["tipo"] == "error" else ""
     hero = (f'<header class="lec-hero"><div class="lec-kicker">{badge}{esc(kicker)}</div><h1 class="lec-title">{esc(p["title"])}</h1>'
             f'<p class="lec-intro">{esc(p["desc"])}</p>{toc}</header>')
-    lec = hero + "".join(cards) + versiones(p, vers)
+    lec = hero + versiones(p, vers) + "".join(cards)
     panels = [("leccion", lec)]
     if "esquema" in sec: panels.append(("esquema", render_esquema(sec["esquema"], lroot, p["title"])))
     if "test" in sec:
@@ -424,7 +433,7 @@ def pagina(p, pages, vers, alts):
     prev = (f'<a class="lec-pnb" href="{base}{idx[k-1]["url"]}"><small>← {t["prev"]}</small>{esc(idx[k-1]["title"])}</a>' if k else "<span></span>")
     nxt = (f'<a class="lec-pnb next" href="{base}{idx[k+1]["url"]}"><small>{t["next"]} →</small>{esc(idx[k+1]["title"])}</a>' if k + 1 < len(idx) else "<span></span>")
     main = (f'<article class="lec">{body}'
-            f'<p class="meta">{t["rev"]}: <time datetime="{p["mod"]}">{p["mod"]}</time> · <a href="{base}{p["url"][:-5]}.md">{t["md"]}</a></p><div class="lec-pn">{prev}{nxt}</div></article>')
+            f'<p class="meta">{t["rev"]} <time datetime="{p["mod"]}">{p["mod"]}</time> · <a href="{base}{p["url"][:-5]}.md">{t["md"]}</a></p><div class="lec-pn">{prev}{nxt}</div></article>')
     ld = ""
     if SITE_URL:
         u = canon(lang, p["rel"])
@@ -441,7 +450,7 @@ def pagina(p, pages, vers, alts):
         ld = '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@graph": g}, ensure_ascii=False) + "</script>"
     return shell(lang, pages, base, p, p["title"], p["desc"], main, p["rel"], alts, ld, p["url"][:-5] + ".md", tabs=tabs, kick=p["stitle"])
 
-def portada(lang, pages, vers, alts):
+def portada(lang, pages, alts):
     t = T[lang]
     base = "../" * (0 if lang == DEFAULT else 1)
     grupos = {}
@@ -450,17 +459,20 @@ def portada(lang, pages, vers, alts):
         for sec, st, d in t["secs"]:
             ps = [p for p in pages if p["sec"] == sec and p["tipo"] == tipo]
             if not ps: continue
+            listing = ""
+            if len(ps) > 1:
+                links = "".join(f'<li><a href="{base}{p["url"]}">{esc(p["title"])}</a></li>' for p in ps)
+                label = f"Ver las {len(ps)} guías" if lang == "es" else f"See all {len(ps)} guides"
+                listing = f"<details class='guide-list'><summary>{label}</summary><ul>{links}</ul></details>"
             cards.append(f"<section class='card' id='{sec}{'-error' if tipo == 'error' else ''}' data-sec='{sec}'><h2>{esc(st)}</h2>"
                          f"<p>{esc(d) if tipo == 'leccion' else ' · '.join(esc(x['title']) for x in ps[:2])}</p>"
-                         f"<a class='btn primary small' href='{base}{ps[0]['url']}'>{t['start'] if tipo == 'leccion' else t['see_err']} ({len(ps)})</a></section>")
+                         f"<a class='btn primary small' href='{base}{ps[0]['url']}'>{esc(ps[0]['title'])}</a>{listing}</section>")
         grupos[tipo] = cards
-    cards = grupos["leccion"]
-    n_g = len(pages)
-    main = (f"<article class='lec'><header class='lec-hero'><div class='lec-kicker'>{SITE}</div><h1 class='lec-title'>{t['lema']}</h1>"
-            f"<p class='lec-intro'>{t['hero'].format(d=esc(vers.get('checked', '—')))}</p></header>"
-            f"<div class='stats'><div class='stat'><b>{n_g}</b><span>{t['st_g']}</span></div>"
-            f"<div class='stat'><b>{len({p['sec'] for p in pages})}</b><span>{t['st_s']}</span></div>"
-            f"<div class='stat'><b>{len(LANGS)}</b><span>{t['st_l']} · ES / EN</span></div></div>"
+    examples = "".join(f'<button class="chip" type="button" data-query="{html.escape(term)}">{esc(term)}</button>' for term in t["examples"])
+    main = (f"<article class='lec'><header class='lec-hero'><h1 class='lec-title'>{t['lema']}</h1>"
+            f"<p class='lec-intro'>{t['hero']}</p>"
+            f"<div class='home-search'>{search_box(t, featured=True)}<div class='search-examples'>{examples}</div></div>"
+            f"<p class='home-stats'>{len(pages)} {t['st_g']} · {len({p['sec'] for p in pages})} {t['st_s']} · {len(LANGS)} {t['st_l']} (ES / EN)</p></header>"
             f"<h2 class='navt leccion'>{t['tipos']['leccion']}</h2><div class='ov'>{''.join(grupos['leccion'])}</div>"
             + (f"<h2 class='navt error'>{t['tipos']['error']}</h2><p class='sub'>{t['homee']}</p><div class='ov'>{''.join(grupos['error'])}</div>" if grupos["error"] else "")
             + "</article>")
@@ -533,7 +545,7 @@ def main():
     for l, pages in allp.items():
         CALLOUTS.update(T[l]["callouts"])
         if l != DEFAULT: (OUT / l).mkdir(exist_ok=True)
-        (OUT / purl(l, "index.html")).write_text(portada(l, pages, vers, alts("index.html")), encoding="utf-8")
+        (OUT / purl(l, "index.html")).write_text(portada(l, pages, alts("index.html")), encoding="utf-8")
         (OUT / purl(l, "novedades.html")).write_text(novedades(l, pages, vers, alts("novedades.html")), encoding="utf-8")
         privacy_path = ROOT / "content" / ("privacidad.md" if l == DEFAULT else f"{l}/privacidad.md")
         privacy_meta, privacy_body = parse(privacy_path)

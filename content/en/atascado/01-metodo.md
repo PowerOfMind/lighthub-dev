@@ -2,7 +2,7 @@
 title: Breaking out of the AI loop
 desc: AI debugging helps developers break repeated failed fixes with minimal reproductions, testable hypotheses and a clear problem report.
 ---
-The pattern: the AI proposes a fix, it fails, it proposes a similar one, it fails. **Every attempt adds noise to the context.** Stop.
+**Start here.** Reproduce the failure with as little code as possible, copy the exact error, and test one hypothesis. If you need help, [copy the template](#a-question-that-gets-an-answer-human-or-ai).
 
 ## Method
 1. **Reproduce small.** A minimal file that fails. If you cannot reproduce it, you do not understand it yet.

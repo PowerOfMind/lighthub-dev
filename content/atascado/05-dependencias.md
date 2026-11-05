@@ -2,6 +2,8 @@
 title: Dependencias que no cuadran
 desc: Dependencias incompatibles en proyectos JavaScript, con pasos para resolver errores ERESOLVE, versiones duplicadas y problemas de lockfile.
 ---
+**Empieza aquí.** Busca en el error qué paquete pide la versión incompatible y confirma con `npm ls <paquete>` qué versión tienes instalada.
+
 ## ERESOLVE / peer dependency
 `npm` dice que A necesita React 18 y tienes 19.
 1. Lee **qué paquete** pide qué versión; ¿hay una versión nueva de ese paquete que lo soporte?

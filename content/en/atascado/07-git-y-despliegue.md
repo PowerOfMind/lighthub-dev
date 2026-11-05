@@ -2,6 +2,8 @@
 title: Git and deployment
 desc: Git and deployment troubleshooting covers conflicts, lost commits, production route errors, environment differences and failed CI builds.
 ---
+**Start here.** Run `git status` before changing history. If deployment fails, open the first error in the build log.
+
 ## Git: frequent situations
 | I want to | Command |
 |---|---|

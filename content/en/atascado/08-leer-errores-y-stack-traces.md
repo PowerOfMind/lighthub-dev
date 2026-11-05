@@ -2,6 +2,8 @@
 title: Reading errors and stack traces
 desc: A practical guide to reading errors and stack traces, common mistakes, decisions, and checks to help you solve problems with confidence.
 ---
+**Start here.** Copy the exact message and open the first relevant line in your code. Reproduce the failure with one specific input.
+
 ## Read the message
 Start with the exact type and message; identify the relevant file and line in your code. The first stack frame is not always the root cause: follow calls and chained causes to the origin.
 

@@ -2,6 +2,8 @@
 title: The UI does not update or flickers
 desc: UI rendering problems frustrate developers. Trace stale state, mutations, looping effects, hydration mismatches and unstable list keys.
 ---
+**Start here.** Log the value during render and inside the callback. If they differ, check whether the callback captured old state.
+
 ## Stale state (stale closure)
 A callback captured the old value.
 ```jsx

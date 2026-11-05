@@ -2,7 +2,7 @@
 title: Salir del bucle con la IA
 desc: Depuración con IA para salir de intentos repetidos, reproducir errores, contrastar hipótesis y aportar contexto útil en una conversación nueva.
 ---
-El patrón: la IA propone un arreglo, falla, propone otro parecido, falla. **Cada intento añade ruido al contexto.** Para.
+**Empieza aquí.** Reproduce el fallo con el mínimo código posible, copia el error exacto y prueba una sola hipótesis. Si necesitas pedir ayuda, [copia la plantilla](#pregunta-que-si-obtiene-respuesta-humana-o-ia).
 
 ## Método
 1. **Reproduce en pequeño.** Un fichero mínimo que falle. Si no consigues reproducirlo, aún no entiendes el problema.

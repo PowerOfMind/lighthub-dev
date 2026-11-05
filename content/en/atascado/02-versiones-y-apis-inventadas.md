@@ -3,6 +3,8 @@ tipo: error
 title: Outdated or invented APIs
 desc: Outdated or invented APIs can break generated code. Learn to check installed versions, TypeScript definitions and migration guides.
 ---
+**Start here.** Run `npm ls <package>` and check that the import or method exists in the docs for that version.
+
 ## Why it happens
 The model learns from code of **many versions at once**. It mixes `react-router` v5 with v7, Next `pages/` with `app/`, Angular NgModules with standalone, Tailwind 3 with 4, Lit 2 with 3.
 

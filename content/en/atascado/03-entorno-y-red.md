@@ -2,6 +2,8 @@
 title: Environment, CORS and variables
 desc: CORS and environment issues can derail development. Diagnose server headers, exposed variables, ports, Windows paths and Node versions.
 ---
+**Start here.** Open the browser’s Network tab. Check the request URL and status, and inspect the response to any `OPTIONS` request.
+
 ## CORS
 The browser blocks the response; the server did receive it.
 - It is fixed **on the server** (`Access-Control-Allow-Origin` headers, and answering `OPTIONS` for preflighted requests). Not from the client.

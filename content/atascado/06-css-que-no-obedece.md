@@ -2,6 +2,8 @@
 title: CSS que no obedece
 desc: CSS que no obedece en interfaces web, con soluciones para z-index, desbordamientos, alturas móviles y problemas de Flexbox y Grid.
 ---
+**Empieza aquí.** Inspecciona el elemento y sus ancestros en DevTools. Si falla `z-index`, busca qué ancestro crea el contexto de apilamiento.
+
 ## z-index no funciona
 Crea un **contexto de apilamiento** el ancestro con `position`+`z-index`, `transform`, `opacity<1`, `filter`, `isolation`. Un hijo nunca sale de él. Soluciona subiendo el ancestro, o sacando el elemento (modales: `<dialog>` + `showModal()` o un portal).
 

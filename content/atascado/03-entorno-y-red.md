@@ -2,6 +2,8 @@
 title: Entorno, CORS y variables
 desc: CORS y entorno de desarrollo para diagnosticar errores de red, variables, puertos y rutas, con comprobaciones útiles para el navegador y servidor.
 ---
+**Empieza aquí.** Abre la pestaña Red del navegador. Comprueba la URL y el estado de la petición y, si hay una petición `OPTIONS`, revisa su respuesta.
+
 ## CORS
 El navegador bloquea la respuesta; el servidor sí la recibió.
 - Se arregla **en el servidor** (cabeceras `Access-Control-Allow-Origin`, y respuesta a `OPTIONS` en peticiones con preflight). No desde el cliente.

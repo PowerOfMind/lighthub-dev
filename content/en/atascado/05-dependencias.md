@@ -2,6 +2,8 @@
 title: Dependencies that do not add up
 desc: Dependency conflicts can block a project. Resolve peer version errors and duplicate packages while understanding lockfiles and ESM.
 ---
+**Start here.** Find which package requires the incompatible version in the error, then check the installed version with `npm ls <package>`.
+
 ## ERESOLVE / peer dependency
 `npm` says A needs React 18 and you have 19.
 1. Read **which package** asks for which version; is there a newer release of that package that supports it?

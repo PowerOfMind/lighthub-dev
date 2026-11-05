@@ -2,6 +2,8 @@
 title: Git y despliegue
 desc: Git y despliegue para resolver conflictos y fallos de producción, con comandos de recuperación y pistas para rutas, builds y diferencias de entorno.
 ---
+**Empieza aquí.** Antes de tocar el historial, ejecuta `git status`. Si falla el despliegue, abre el primer error del registro de compilación.
+
 ## Git: situaciones frecuentes
 | Quiero | Comando |
 |---|---|

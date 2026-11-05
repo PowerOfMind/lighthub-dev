@@ -3,6 +3,8 @@ tipo: error
 title: APIs obsoletas o inventadas
 desc: APIs obsoletas o inventadas en código generado por IA, con pistas para detectar versiones incompatibles y contrastar la documentación real.
 ---
+**Empieza aquí.** Ejecuta `npm ls <paquete>` y comprueba que el import o método existe en la documentación de esa versión.
+
 ## Por qué pasa
 El modelo aprende de código de **muchas versiones a la vez**. Mezcla `react-router` v5 con v7, Next `pages/` con `app/`, Angular con NgModules con standalone, Tailwind 3 con 4, Lit 2 con 3.
 
