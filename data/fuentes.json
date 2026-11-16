@@ -18,11 +18,11 @@
   },
   "Vite (releases)": {
    "url": "https://github.com/vitejs/vite/releases.atom",
-   "ultimo": "v8.3.7"
+   "ultimo": "v8.4.0-beta.1"
   },
   "Claude Code (releases)": {
    "url": "https://github.com/anthropics/claude-code/releases.atom",
-   "ultimo": "v2.1.319"
+   "ultimo": "v2.1.325"
   },
   "Model Context Protocol (releases)": {
    "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/releases.atom",
@@ -41,5 +41,5 @@
    "ultimo": "What's New in WebGPU (Chrome 155-156)"
   }
  },
- "checked": "2026-11-09"
+ "checked": "2026-11-16"
 }
