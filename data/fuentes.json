@@ -10,7 +10,7 @@
   },
   "Angular (blog)": {
    "url": "https://blog.angular.dev/feed",
-   "ultimo": "Core Vitals Optimization, SSR Deployments, and Signal-First Architecture ⚡"
+   "ultimo": "The momentum across the global Angular ecosystem never slows down!"
   },
   "TypeScript (releases)": {
    "url": "https://github.com/microsoft/TypeScript/releases.atom",
@@ -22,7 +22,7 @@
   },
   "Claude Code (releases)": {
    "url": "https://github.com/anthropics/claude-code/releases.atom",
-   "ultimo": "v2.1.325"
+   "ultimo": "v2.1.330"
   },
   "Model Context Protocol (releases)": {
    "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/releases.atom",
@@ -41,5 +41,5 @@
    "ultimo": "What's New in WebGPU (Chrome 155-156)"
   }
  },
- "checked": "2026-11-16"
+ "checked": "2026-11-23"
 }
